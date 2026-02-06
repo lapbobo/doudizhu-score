@@ -1171,7 +1171,9 @@
             renderLandlordSelect() {
                 const landlordSelect = document.getElementById('landlordSelect');
                 landlordSelect.querySelectorAll('.player-select-item').forEach((item, index) => {
-                    item.querySelector('.player-avatar-sm').textContent = this.players[index].avatar;
+                    const avatarSm = item.querySelector('.player-avatar-sm');
+                    avatarSm.textContent = this.players[index].avatar;
+                    avatarSm.style.background = this.players[index].avatarColor || this.players[index].avatarColor;
                     item.querySelector('.player-name-sm').textContent = this.players[index].name;
 
                     if (this.currentRound.landlord === index) {
@@ -1377,24 +1379,25 @@
 
             playClickSound() {
                 if (!this.soundEnabled) return;
-                
+
                 try {
                     this.initAudioContext();
-                    
+
                     const oscillator = this.audioContext.createOscillator();
                     const gainNode = this.audioContext.createGain();
-                    
+
                     oscillator.connect(gainNode);
                     gainNode.connect(this.audioContext.destination);
-                    
-                    oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
-                    oscillator.frequency.exponentialRampToValueAtTime(400, this.audioContext.currentTime + 0.1);
-                    
-                    gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
-                    
+
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(600, this.audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(400, this.audioContext.currentTime + 0.05);
+
+                    gainNode.gain.setValueAtTime(0.08, this.audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.05);
+
                     oscillator.start(this.audioContext.currentTime);
-                    oscillator.stop(this.audioContext.currentTime + 0.1);
+                    oscillator.stop(this.audioContext.currentTime + 0.05);
                 } catch (e) {
                     console.log('Audio not supported');
                 }
@@ -1402,25 +1405,30 @@
 
             playSuccessSound() {
                 if (!this.soundEnabled) return;
-                
+
                 try {
                     this.initAudioContext();
-                    
-                    const oscillator = this.audioContext.createOscillator();
-                    const gainNode = this.audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(this.audioContext.destination);
-                    
-                    oscillator.frequency.setValueAtTime(523.25, this.audioContext.currentTime);
-                    oscillator.frequency.setValueAtTime(659.25, this.audioContext.currentTime + 0.1);
-                    oscillator.frequency.setValueAtTime(783.99, this.audioContext.currentTime + 0.2);
-                    
-                    gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
-                    
-                    oscillator.start(this.audioContext.currentTime);
-                    oscillator.stop(this.audioContext.currentTime + 0.3);
+
+                    const playTone = (freq, startTime, duration) => {
+                        const osc = this.audioContext.createOscillator();
+                        const gain = this.audioContext.createGain();
+
+                        osc.connect(gain);
+                        gain.connect(this.audioContext.destination);
+
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, startTime);
+
+                        gain.gain.setValueAtTime(0.06, startTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+                        osc.start(startTime);
+                        osc.stop(startTime + duration);
+                    };
+
+                    const now = this.audioContext.currentTime;
+                    playTone(523.25, now, 0.08);
+                    playTone(659.25, now + 0.1, 0.08);
                 } catch (e) {
                     console.log('Audio not supported');
                 }
