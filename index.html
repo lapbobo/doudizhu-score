@@ -92,6 +92,12 @@
             font-size: 28px;
             margin: 0 auto 12px;
             box-shadow: var(--shadow-md);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .player-avatar:hover {
+            transform: scale(1.05);
         }
 
         .player-name {
@@ -276,6 +282,77 @@
 
         .btn-clear:active {
             transform: scale(0.95);
+        }
+
+        .avatar-select-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1002;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .avatar-select-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .avatar-select-box {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            max-width: 340px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .avatar-select-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .avatar-select-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .avatar-option {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 3px solid transparent;
+        }
+
+        .avatar-option:hover {
+            transform: scale(1.1);
+        }
+
+        .avatar-option.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
         }
 
         .empty-state {
@@ -789,6 +866,16 @@
         </div>
     </div>
 
+    <div class="avatar-select-modal" id="avatarSelectModal">
+        <div class="avatar-select-box">
+            <div class="avatar-select-header">
+                <h3 class="avatar-select-title">选择头像</h3>
+                <button class="btn-icon" id="closeAvatarModal">✕</button>
+            </div>
+            <div class="avatar-grid" id="avatarGrid"></div>
+        </div>
+    </div>
+
     <script>
         class DouDiZhuScoreboard {
             constructor() {
@@ -805,6 +892,42 @@
                     result: 'landlord'
                 };
                 this.deleteTarget = null;
+                this.selectedPlayerForAvatar = null;
+                this.audioContext = null;
+                this.soundEnabled = true;
+
+                this.avatars = [
+                    { emoji: '🔨', color: 'linear-gradient(135deg, #667eea, #764ba2)' },
+                    { emoji: '🌟', color: 'linear-gradient(135deg, #f093fb, #f5576c)' },
+                    { emoji: '⚔️', color: 'linear-gradient(135deg, #4facfe, #00f2fe)' },
+                    { emoji: '👑', color: 'linear-gradient(135deg, #fa709a, #fee140)' },
+                    { emoji: '🎯', color: 'linear-gradient(135deg, #a8edea, #fed6e3)' },
+                    { emoji: '🚀', color: 'linear-gradient(135deg, #667eea, #764ba2)' },
+                    { emoji: '💎', color: 'linear-gradient(135deg, #89f7fe, #66a6ff)' },
+                    { emoji: '🔥', color: 'linear-gradient(135deg, #ff9a9e, #fecfef)' },
+                    { emoji: '⚡', color: 'linear-gradient(135deg, #f6d365, #fda085)' },
+                    { emoji: '🎮', color: 'linear-gradient(135deg, #5ee7df, #b490ca)' },
+                    { emoji: '🎨', color: 'linear-gradient(135deg, #d299c2, #fef9d7)' },
+                    { emoji: '🎭', color: 'linear-gradient(135deg, #fccb90, #d57eeb)' },
+                    { emoji: '🎪', color: 'linear-gradient(135deg, #e0c3fc, #8ec5fc)' },
+                    { emoji: '🎸', color: 'linear-gradient(135deg, #fa709a, #fee140)' },
+                    { emoji: '🎺', color: 'linear-gradient(135deg, #a8edea, #fed6e3)' },
+                    { emoji: '🎹', color: 'linear-gradient(135deg, #ffecd2, #fcb69f)' },
+                    { emoji: '🎻', color: 'linear-gradient(135deg, #a18cd1, #fbc2eb)' },
+                    { emoji: '🎲', color: 'linear-gradient(135deg, #84fab0, #8fd3f4)' },
+                    { emoji: '🎯', color: 'linear-gradient(135deg, #cfd9df, #e2ebf0)' },
+                    { emoji: '🎾', color: 'linear-gradient(135deg, #f093fb, #f5576c)' },
+                    { emoji: '🎃', color: 'linear-gradient(135deg, #ffecd2, #fcb69f)' },
+                    { emoji: '🎄', color: 'linear-gradient(135deg, #a8edea, #fed6e3)' },
+                    { emoji: '🎆', color: 'linear-gradient(135deg, #ffecd2, #fcb69f)' },
+                    { emoji: '🎇', color: 'linear-gradient(135deg, #84fab0, #8fd3f4)' },
+                    { emoji: '🎈', color: 'linear-gradient(135deg, #a18cd1, #fbc2eb)' },
+                    { emoji: '🎉', color: 'linear-gradient(135deg, #667eea, #764ba2)' },
+                    { emoji: '🎊', color: 'linear-gradient(135deg, #89f7fe, #66a6ff)' },
+                    { emoji: '🎋', color: 'linear-gradient(135deg, #ff9a9e, #fecfef)' },
+                    { emoji: '🎌', color: 'linear-gradient(135deg, #f6d365, #fda085)' },
+                    { emoji: '🏆', color: 'linear-gradient(135deg, #5ee7df, #b490ca)' }
+                ];
 
                 this.init();
             }
@@ -833,11 +956,18 @@
             }
 
             bindEvents() {
-                document.getElementById('fabBtn').addEventListener('click', () => this.openModal());
-                document.getElementById('closeModal').addEventListener('click', () => this.closeModal());
+                document.getElementById('fabBtn').addEventListener('click', () => {
+                    this.openModal();
+                    this.playClickSound();
+                });
+                document.getElementById('closeModal').addEventListener('click', () => {
+                    this.closeModal();
+                    this.playClickSound();
+                });
                 document.getElementById('modalOverlay').addEventListener('click', (e) => {
                     if (e.target === document.getElementById('modalOverlay')) {
                         this.closeModal();
+                        this.playClickSound();
                     }
                 });
 
@@ -845,6 +975,7 @@
                     const item = e.target.closest('.player-select-item');
                     if (item) {
                         this.selectLandlord(parseInt(item.dataset.player));
+                        this.playClickSound();
                     }
                 });
 
@@ -852,6 +983,7 @@
                     const btn = e.target.closest('.btn-option');
                     if (btn) {
                         this.selectBid(parseInt(btn.dataset.bid));
+                        this.playClickSound();
                     }
                 });
 
@@ -859,6 +991,7 @@
                     const btn = e.target.closest('.btn-option');
                     if (btn) {
                         this.selectBombs(parseInt(btn.dataset.bombs));
+                        this.playClickSound();
                     }
                 });
 
@@ -866,10 +999,14 @@
                     const btn = e.target.closest('.btn-option');
                     if (btn) {
                         this.selectResult(btn.dataset.result);
+                        this.playClickSound();
                     }
                 });
 
-                document.getElementById('confirmBtn').addEventListener('click', () => this.confirmRound());
+                document.getElementById('confirmBtn').addEventListener('click', () => {
+                    this.confirmRound();
+                    this.playSuccessSound();
+                });
 
                 document.querySelectorAll('.player-name').forEach((el, index) => {
                     el.addEventListener('blur', () => {
@@ -894,20 +1031,51 @@
                 document.getElementById('confirmDialog').addEventListener('click', (e) => {
                     if (e.target === document.getElementById('confirmDialog')) {
                         this.closeConfirmDialog();
+                        this.playClickSound();
                     }
                 });
 
-                document.getElementById('cancelDelete').addEventListener('click', () => this.closeConfirmDialog());
-                document.getElementById('confirmDelete').addEventListener('click', () => this.deleteHistory());
+                document.getElementById('cancelDelete').addEventListener('click', () => {
+                    this.closeConfirmDialog();
+                    this.playClickSound();
+                });
+                document.getElementById('confirmDelete').addEventListener('click', () => {
+                    this.deleteHistory();
+                    this.playClickSound();
+                });
 
-                document.getElementById('clearAllBtn').addEventListener('click', () => this.showClearConfirmDialog());
+                document.getElementById('clearAllBtn').addEventListener('click', () => {
+                    this.showClearConfirmDialog();
+                    this.playClickSound();
+                });
                 document.getElementById('clearConfirmDialog').addEventListener('click', (e) => {
                     if (e.target === document.getElementById('clearConfirmDialog')) {
                         this.closeClearConfirmDialog();
+                        this.playClickSound();
                     }
                 });
-                document.getElementById('cancelClear').addEventListener('click', () => this.closeClearConfirmDialog());
-                document.getElementById('confirmClear').addEventListener('click', () => this.clearAllData());
+                document.getElementById('cancelClear').addEventListener('click', () => {
+                    this.closeClearConfirmDialog();
+                    this.playClickSound();
+                });
+                document.getElementById('confirmClear').addEventListener('click', () => {
+                    this.clearAllData();
+                    this.playClickSound();
+                });
+
+                document.querySelectorAll('.player-avatar').forEach((avatar, index) => {
+                    avatar.addEventListener('click', () => {
+                        this.openAvatarModal(index);
+                        this.playClickSound();
+                    });
+                });
+
+                document.getElementById('closeAvatarModal').addEventListener('click', () => this.closeAvatarModal());
+                document.getElementById('avatarSelectModal').addEventListener('click', (e) => {
+                    if (e.target === document.getElementById('avatarSelectModal')) {
+                        this.closeAvatarModal();
+                    }
+                });
             }
 
             render() {
@@ -922,9 +1090,17 @@
                     const card = document.querySelector(`.player-card[data-player="${index}"]`);
                     if (card) {
                         card.querySelector('.player-name').textContent = player.name;
+                        const avatarEl = card.querySelector('.player-avatar');
+                        avatarEl.textContent = player.avatar;
+                        
                         const scoreEl = card.querySelector('.player-score');
                         scoreEl.textContent = player.score >= 0 ? `+${player.score}` : player.score;
                         scoreEl.className = `player-score ${player.score > 0 ? 'positive' : player.score < 0 ? 'negative' : 'zero'}`;
+                        
+                        avatarEl.onclick = () => {
+                            this.openAvatarModal(index);
+                            this.playClickSound();
+                        };
                     }
                 });
             }
@@ -1178,6 +1354,115 @@
                 this.render();
                 this.closeClearConfirmDialog();
                 this.animateScoreChange();
+            }
+
+            initAudioContext() {
+                if (!this.audioContext) {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playClickSound() {
+                if (!this.soundEnabled) return;
+                
+                try {
+                    this.initAudioContext();
+                    
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(400, this.audioContext.currentTime + 0.1);
+                    
+                    gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
+                    
+                    oscillator.start(this.audioContext.currentTime);
+                    oscillator.stop(this.audioContext.currentTime + 0.1);
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+
+            playSuccessSound() {
+                if (!this.soundEnabled) return;
+                
+                try {
+                    this.initAudioContext();
+                    
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(523.25, this.audioContext.currentTime);
+                    oscillator.frequency.setValueAtTime(659.25, this.audioContext.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(783.99, this.audioContext.currentTime + 0.2);
+                    
+                    gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
+                    
+                    oscillator.start(this.audioContext.currentTime);
+                    oscillator.stop(this.audioContext.currentTime + 0.3);
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+
+            openAvatarModal(playerIndex) {
+                this.selectedPlayerForAvatar = playerIndex;
+                const modal = document.getElementById('avatarSelectModal');
+                const avatarGrid = document.getElementById('avatarGrid');
+                
+                avatarGrid.innerHTML = this.avatars.map((avatar, index) => {
+                    const isSelected = this.players[playerIndex].avatar === avatar.emoji;
+                    return `
+                        <div class="avatar-option ${isSelected ? 'selected' : ''}" 
+                             data-index="${index}"
+                             style="background: ${avatar.color}">
+                            ${avatar.emoji}
+                        </div>
+                    `;
+                }).join('');
+                
+                modal.classList.add('active');
+                
+                avatarGrid.addEventListener('click', (e) => {
+                    const option = e.target.closest('.avatar-option');
+                    if (option) {
+                        this.selectAvatar(parseInt(option.dataset.index));
+                    }
+                });
+            }
+
+            closeAvatarModal() {
+                document.getElementById('avatarSelectModal').classList.remove('active');
+                this.selectedPlayerForAvatar = null;
+            }
+
+            selectAvatar(avatarIndex) {
+                if (this.selectedPlayerForAvatar === null) return;
+                
+                const avatar = this.avatars[avatarIndex];
+                this.players[this.selectedPlayerForAvatar].avatar = avatar.emoji;
+                this.saveData();
+                this.render();
+                this.closeAvatarModal();
+                this.playSuccessSound();
+            }
+
+            renderAvatarGrid() {
+                this.avatars.forEach((avatar, index) => {
+                    const option = document.querySelector(`.avatar-option[data-index="${index}"]`);
+                    if (option) {
+                        option.style.background = avatar.color;
+                        option.textContent = avatar.emoji;
+                    }
+                });
             }
         }
 
