@@ -881,9 +881,9 @@
         class DouDiZhuScoreboard {
             constructor() {
                 this.players = [
-                    { name: '甜大锤', avatar: '🔨', score: 0 },
-                    { name: '万小布', avatar: '🌟', score: 0 },
-                    { name: '李飞刀', avatar: '⚔️', score: 0 }
+                    { name: '甜大锤', avatar: '🔨', avatarColor: 'linear-gradient(135deg, #667eea, #764ba2)', score: 0 },
+                    { name: '万小布', avatar: '🌟', avatarColor: 'linear-gradient(135deg, #f093fb, #f5576c)', score: 0 },
+                    { name: '李飞刀', avatar: '⚔️', avatarColor: 'linear-gradient(135deg, #4facfe, #00f2fe)', score: 0 }
                 ];
                 this.history = [];
                 this.currentRound = {
@@ -945,6 +945,17 @@
                     const data = JSON.parse(savedData);
                     this.players = data.players || this.players;
                     this.history = data.history || [];
+
+                    this.players.forEach(player => {
+                        if (!player.avatarColor) {
+                            const avatar = this.avatars.find(a => a.emoji === player.avatar);
+                            if (avatar) {
+                                player.avatarColor = avatar.color;
+                            } else {
+                                player.avatarColor = 'linear-gradient(135deg, var(--primary), var(--primary-dark))';
+                            }
+                        }
+                    });
                 }
             }
 
@@ -1093,11 +1104,12 @@
                         card.querySelector('.player-name').textContent = player.name;
                         const avatarEl = card.querySelector('.player-avatar');
                         avatarEl.textContent = player.avatar;
-                        
+                        avatarEl.style.background = player.avatarColor || player.avatarColor;
+
                         const scoreEl = card.querySelector('.player-score');
                         scoreEl.textContent = player.score >= 0 ? `+${player.score}` : player.score;
                         scoreEl.className = `player-score ${player.score > 0 ? 'positive' : player.score < 0 ? 'negative' : 'zero'}`;
-                        
+
                         avatarEl.onclick = () => {
                             this.openAvatarModal(index);
                             this.playClickSound();
@@ -1447,9 +1459,10 @@
 
             selectAvatar(avatarIndex) {
                 if (this.selectedPlayerForAvatar === null) return;
-                
+
                 const avatar = this.avatars[avatarIndex];
                 this.players[this.selectedPlayerForAvatar].avatar = avatar.emoji;
+                this.players[this.selectedPlayerForAvatar].avatarColor = avatar.color;
                 this.saveData();
                 this.render();
                 this.closeAvatarModal();
