@@ -10,18 +10,18 @@
     <title>斗地主计分牌</title>
     <style>
         :root {
-            --primary: #3b82f6;
-            --primary-dark: #2563eb;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --bg-primary: #f8fafc;
-            --bg-secondary: #ffffff;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
+            --primary: #FF6B6B;
+            --primary-dark: #EE5A5A;
+            --success: #4ECDC4;
+            --danger: #FF8585;
+            --warning: #FFE66D;
+            --bg-primary: #F2F2F7;
+            --bg-secondary: #FFFFFF;
+            --text-primary: #2C3E50;
+            --text-secondary: #6B7280;
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.12);
             --radius-md: 12px;
             --radius-lg: 16px;
             --radius-xl: 24px;
@@ -35,7 +35,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: var(--bg-primary);
+            background: #F2F2F7;
             color: var(--text-primary);
             line-height: 1.6;
             min-height: 100vh;
@@ -52,6 +52,43 @@
         header {
             text-align: center;
             margin-bottom: 24px;
+            position: relative;
+        }
+
+        .sound-toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .sound-toggle:hover {
+            background: var(--bg-primary);
+            transform: scale(1.05);
+        }
+
+        .sound-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .sound-toggle.sound-on {
+            color: var(--primary);
+        }
+
+        .sound-toggle.sound-off {
+            color: var(--text-secondary);
         }
 
         h1 {
@@ -78,27 +115,69 @@
             border-radius: var(--radius-lg);
             padding: 16px;
             text-align: center;
-            box-shadow: var(--shadow-md);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 10px 15px -3px rgb(0 0 0 / 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.05) 0%, rgba(78, 205, 196, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .player-card:hover::before {
+            opacity: 1;
         }
 
         .player-avatar {
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 30px;
             margin: 0 auto 12px;
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 10px 15px -3px rgb(0 0 0 / 0.05);
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .player-avatar::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 107, 107, 0.3);
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0;
+                transform: scale(1.15);
+            }
         }
 
         .player-avatar:hover {
-            transform: scale(1.05);
+            transform: scale(1.1);
+            box-shadow: 0 10px 20px -5px rgb(0 0 0 / 0.15), 0 20px 25px -5px rgb(0 0 0 / 0.1);
         }
 
         .player-name {
@@ -167,12 +246,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
         }
 
         .history-item:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -5px rgb(0 0 0 / 0.1);
+            border-color: rgba(255, 107, 107, 0.2);
         }
 
         .history-left {
@@ -273,16 +354,18 @@
             font-weight: 600;
             color: var(--danger);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-clear:hover {
             background: var(--danger);
             color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgb(255 133 133 / 0.3);
         }
 
         .btn-clear:active {
-            transform: scale(0.95);
+            transform: translateY(0);
         }
 
         .avatar-select-modal {
@@ -343,12 +426,13 @@
             justify-content: center;
             font-size: 24px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 3px solid transparent;
         }
 
         .avatar-option:hover {
-            transform: scale(1.1);
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .avatar-option.selected {
@@ -377,15 +461,25 @@
             border-radius: 50%;
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             border: none;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.12), 0 20px 25px -5px rgb(0 0 0 / 0.08);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
             color: white;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
+        }
+
+        .fab::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 107, 107, 0.4);
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
 
         .fab:hover {
@@ -487,11 +581,13 @@
             padding: 16px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .player-select-item:hover {
             border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
         }
 
         .player-select-item.selected {
@@ -531,21 +627,22 @@
             font-weight: 600;
             color: var(--text-primary);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-option:hover {
             border-color: var(--primary);
+            transform: translateY(-1px);
         }
 
         .btn-option.selected {
             border-color: var(--primary);
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(255, 107, 107, 0.1);
             color: var(--primary);
         }
 
         .btn-option:active {
-            transform: scale(0.95);
+            transform: translateY(0);
         }
 
         .btn-confirm {
@@ -558,17 +655,18 @@
             font-weight: 600;
             color: white;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             margin-top: 16px;
+            box-shadow: 0 4px 6px -1px rgb(255 107 107 / 0.3);
         }
 
         .btn-confirm:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -5px rgb(255 107 107 / 0.4);
         }
 
         .btn-confirm:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
         }
 
         .btn-confirm:disabled {
@@ -702,6 +800,56 @@
             100% { transform: scale(1); }
         }
 
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .animate-in-down {
+            animation: fadeInDown 0.5s ease-out forwards;
+        }
+
+        .animate-in-scale {
+            animation: scaleIn 0.4s ease-out forwards;
+        }
+
         .score-change-anim {
             animation: scoreChange 0.3s ease-in-out;
         }
@@ -729,30 +877,31 @@
 </head>
 <body>
     <div class="container">
-        <header>
+        <header class="animate-in" style="animation-delay: 0.1s;">
+            <button class="sound-toggle sound-on" id="soundToggle" title="音效开关">🔊</button>
             <h1>斗地主计分牌</h1>
             <p class="subtitle">简单好用的三人线下斗地主计分工具</p>
         </header>
 
         <section class="players-section">
-            <div class="player-card" data-player="0">
+            <div class="player-card animate-in-scale" data-player="0" style="animation-delay: 0.2s;">
                 <div class="player-avatar">🔨</div>
                 <div class="player-name" contenteditable="true">甜大官</div>
                 <div class="player-score zero">0</div>
             </div>
-            <div class="player-card" data-player="1">
+            <div class="player-card animate-in-scale" data-player="1" style="animation-delay: 0.3s;">
                 <div class="player-avatar">🌟</div>
                 <div class="player-name" contenteditable="true">万小布</div>
                 <div class="player-score zero">0</div>
             </div>
-            <div class="player-card" data-player="2">
+            <div class="player-card animate-in-scale" data-player="2" style="animation-delay: 0.4s;">
                 <div class="player-avatar">⚔️</div>
                 <div class="player-name" contenteditable="true">李大鲨</div>
                 <div class="player-score zero">0</div>
             </div>
         </section>
 
-        <section class="score-section">
+        <section class="score-section animate-in" style="animation-delay: 0.5s;">
             <div class="section-header">
                 <h2>历史记录</h2>
                 <button class="btn-clear" id="clearAllBtn" title="清空所有记录">清空</button>
@@ -766,7 +915,7 @@
         </section>
     </div>
 
-    <button class="fab" id="fabBtn">+</button>
+    <button class="fab animate-in-scale" id="fabBtn" style="animation-delay: 0.6s;">+</button>
 
     <div class="modal-overlay" id="modalOverlay">
         <div class="bottom-sheet">
@@ -937,6 +1086,7 @@
                 this.loadData();
                 this.bindEvents();
                 this.render();
+                this.updateSoundToggle();
             }
 
             loadData() {
@@ -956,6 +1106,11 @@
                             }
                         }
                     });
+                }
+
+                const soundEnabled = localStorage.getItem('doudizhu_sound_enabled');
+                if (soundEnabled !== null) {
+                    this.soundEnabled = soundEnabled === 'true';
                 }
             }
 
@@ -1087,6 +1242,10 @@
                     if (e.target === document.getElementById('avatarSelectModal')) {
                         this.closeAvatarModal();
                     }
+                });
+
+                document.getElementById('soundToggle').addEventListener('click', () => {
+                    this.toggleSound();
                 });
             }
 
@@ -1286,6 +1445,7 @@
                     result: 'landlord'
                 };
                 this.render();
+                this.playOpenSound();
             }
 
             closeModal() {
@@ -1349,6 +1509,7 @@
 
                 this.closeConfirmDialog();
                 this.animateScoreChange();
+                this.playDeleteSound();
             }
 
             showClearConfirmDialog() {
@@ -1369,6 +1530,7 @@
                 this.render();
                 this.closeClearConfirmDialog();
                 this.animateScoreChange();
+                this.playClearSound();
             }
 
             initAudioContext() {
@@ -1383,21 +1545,30 @@
                 try {
                     this.initAudioContext();
 
-                    const oscillator = this.audioContext.createOscillator();
+                    const oscillator1 = this.audioContext.createOscillator();
+                    const oscillator2 = this.audioContext.createOscillator();
                     const gainNode = this.audioContext.createGain();
 
-                    oscillator.connect(gainNode);
+                    oscillator1.connect(gainNode);
+                    oscillator2.connect(gainNode);
                     gainNode.connect(this.audioContext.destination);
 
-                    oscillator.type = 'sine';
-                    oscillator.frequency.setValueAtTime(600, this.audioContext.currentTime);
-                    oscillator.frequency.exponentialRampToValueAtTime(400, this.audioContext.currentTime + 0.05);
+                    oscillator1.type = 'sine';
+                    oscillator2.type = 'triangle';
 
-                    gainNode.gain.setValueAtTime(0.08, this.audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.05);
+                    oscillator1.frequency.setValueAtTime(800, this.audioContext.currentTime);
+                    oscillator1.frequency.exponentialRampToValueAtTime(600, this.audioContext.currentTime + 0.06);
 
-                    oscillator.start(this.audioContext.currentTime);
-                    oscillator.stop(this.audioContext.currentTime + 0.05);
+                    oscillator2.frequency.setValueAtTime(400, this.audioContext.currentTime);
+                    oscillator2.frequency.exponentialRampToValueAtTime(300, this.audioContext.currentTime + 0.06);
+
+                    gainNode.gain.setValueAtTime(0.05, this.audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.06);
+
+                    oscillator1.start(this.audioContext.currentTime);
+                    oscillator2.start(this.audioContext.currentTime);
+                    oscillator1.stop(this.audioContext.currentTime + 0.06);
+                    oscillator2.stop(this.audioContext.currentTime + 0.06);
                 } catch (e) {
                     console.log('Audio not supported');
                 }
@@ -1419,7 +1590,7 @@
                         osc.type = 'sine';
                         osc.frequency.setValueAtTime(freq, startTime);
 
-                        gain.gain.setValueAtTime(0.06, startTime);
+                        gain.gain.setValueAtTime(0.04, startTime);
                         gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
 
                         osc.start(startTime);
@@ -1427,10 +1598,156 @@
                     };
 
                     const now = this.audioContext.currentTime;
-                    playTone(523.25, now, 0.08);
-                    playTone(659.25, now + 0.1, 0.08);
+                    playTone(523.25, now, 0.1);
+                    playTone(659.25, now + 0.12, 0.1);
+                    playTone(783.99, now + 0.24, 0.12);
                 } catch (e) {
                     console.log('Audio not supported');
+                }
+            }
+
+            playDeleteSound() {
+                if (!this.soundEnabled) return;
+
+                try {
+                    this.initAudioContext();
+
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(600, this.audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(300, this.audioContext.currentTime + 0.08);
+
+                    gainNode.gain.setValueAtTime(0.05, this.audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.08);
+
+                    oscillator.start(this.audioContext.currentTime);
+                    oscillator.stop(this.audioContext.currentTime + 0.08);
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+
+            playOpenSound() {
+                if (!this.soundEnabled) return;
+
+                try {
+                    this.initAudioContext();
+
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(400, this.audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(600, this.audioContext.currentTime + 0.06);
+
+                    gainNode.gain.setValueAtTime(0.05, this.audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.06);
+
+                    oscillator.start(this.audioContext.currentTime);
+                    oscillator.stop(this.audioContext.currentTime + 0.06);
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+
+            playSelectSound() {
+                if (!this.soundEnabled) return;
+
+                try {
+                    this.initAudioContext();
+
+                    const playTone = (freq, startTime, duration) => {
+                        const osc = this.audioContext.createOscillator();
+                        const gain = this.audioContext.createGain();
+
+                        osc.connect(gain);
+                        gain.connect(this.audioContext.destination);
+
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, startTime);
+
+                        gain.gain.setValueAtTime(0.04, startTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+                        osc.start(startTime);
+                        osc.stop(startTime + duration);
+                    };
+
+                    const now = this.audioContext.currentTime;
+                    playTone(587.33, now, 0.08);
+                    playTone(659.25, now + 0.1, 0.08);
+                    playTone(783.99, now + 0.2, 0.08);
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+
+            playClearSound() {
+                if (!this.soundEnabled) return;
+
+                try {
+                    this.initAudioContext();
+
+                    const playTone = (freq, startTime, duration) => {
+                        const osc = this.audioContext.createOscillator();
+                        const gain = this.audioContext.createGain();
+
+                        osc.connect(gain);
+                        gain.connect(this.audioContext.destination);
+
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, startTime);
+
+                        gain.gain.setValueAtTime(0.04, startTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+                        osc.start(startTime);
+                        osc.stop(startTime + duration);
+                    };
+
+                    const now = this.audioContext.currentTime;
+                    playTone(600, now, 0.1);
+                    playTone(500, now + 0.12, 0.1);
+                    playTone(400, now + 0.24, 0.1);
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+
+            toggleSound() {
+                this.soundEnabled = !this.soundEnabled;
+                const toggleBtn = document.getElementById('soundToggle');
+                if (this.soundEnabled) {
+                    toggleBtn.textContent = '🔊';
+                    toggleBtn.classList.remove('sound-off');
+                    toggleBtn.classList.add('sound-on');
+                } else {
+                    toggleBtn.textContent = '🔇';
+                    toggleBtn.classList.remove('sound-on');
+                    toggleBtn.classList.add('sound-off');
+                }
+                this.playClickSound();
+                localStorage.setItem('doudizhu_sound_enabled', this.soundEnabled);
+            }
+
+            updateSoundToggle() {
+                const toggleBtn = document.getElementById('soundToggle');
+                if (this.soundEnabled) {
+                    toggleBtn.textContent = '🔊';
+                    toggleBtn.classList.remove('sound-off');
+                    toggleBtn.classList.add('sound-on');
+                } else {
+                    toggleBtn.textContent = '🔇';
+                    toggleBtn.classList.remove('sound-on');
+                    toggleBtn.classList.add('sound-off');
                 }
             }
 
@@ -1474,7 +1791,7 @@
                 this.saveData();
                 this.render();
                 this.closeAvatarModal();
-                this.playSuccessSound();
+                this.playSelectSound();
             }
 
             renderAvatarGrid() {
