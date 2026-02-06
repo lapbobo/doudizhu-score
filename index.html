@@ -169,14 +169,14 @@
         }
 
         .round-number {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
             color: var(--text-primary);
             margin-bottom: 4px;
         }
 
         .round-info {
-            font-size: 12px;
+            font-size: 14px;
             color: var(--text-secondary);
             display: flex;
             gap: 8px;
@@ -202,7 +202,7 @@
         }
 
         .score-change {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
             min-width: 50px;
             text-align: right;
@@ -237,6 +237,40 @@
         }
 
         .btn-icon:active {
+            transform: scale(0.95);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .btn-clear {
+            padding: 6px 16px;
+            border: 1px solid var(--danger);
+            background: transparent;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--danger);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-clear:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-clear:active {
             transform: scale(0.95);
         }
 
@@ -637,7 +671,10 @@
         </section>
 
         <section class="score-section">
-            <h2>历史记录</h2>
+            <div class="section-header">
+                <h2>历史记录</h2>
+                <button class="btn-clear" id="clearAllBtn" title="清空所有记录">清空</button>
+            </div>
             <div class="history-list" id="historyList">
                 <div class="empty-state">
                     <div class="empty-state-icon">📝</div>
@@ -733,6 +770,17 @@
             <div class="confirm-actions">
                 <button class="btn-confirm-dialog secondary" id="cancelDelete">取消</button>
                 <button class="btn-confirm-dialog primary" id="confirmDelete">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="confirm-dialog" id="clearConfirmDialog">
+        <div class="confirm-box">
+            <h3 class="confirm-title">清空所有记录</h3>
+            <p class="confirm-message">确定要清空所有记录吗？此操作不可撤销。</p>
+            <div class="confirm-actions">
+                <button class="btn-confirm-dialog secondary" id="cancelClear">取消</button>
+                <button class="btn-confirm-dialog primary" id="confirmClear">清空</button>
             </div>
         </div>
     </div>
@@ -847,6 +895,15 @@
 
                 document.getElementById('cancelDelete').addEventListener('click', () => this.closeConfirmDialog());
                 document.getElementById('confirmDelete').addEventListener('click', () => this.deleteHistory());
+
+                document.getElementById('clearAllBtn').addEventListener('click', () => this.showClearConfirmDialog());
+                document.getElementById('clearConfirmDialog').addEventListener('click', (e) => {
+                    if (e.target === document.getElementById('clearConfirmDialog')) {
+                        this.closeClearConfirmDialog();
+                    }
+                });
+                document.getElementById('cancelClear').addEventListener('click', () => this.closeClearConfirmDialog());
+                document.getElementById('confirmClear').addEventListener('click', () => this.clearAllData());
             }
 
             render() {
@@ -1096,6 +1153,26 @@
                 this.render();
 
                 this.closeConfirmDialog();
+                this.animateScoreChange();
+            }
+
+            showClearConfirmDialog() {
+                if (this.history.length === 0) return;
+                document.getElementById('clearConfirmDialog').classList.add('active');
+            }
+
+            closeClearConfirmDialog() {
+                document.getElementById('clearConfirmDialog').classList.remove('active');
+            }
+
+            clearAllData() {
+                this.history = [];
+                this.players.forEach(player => {
+                    player.score = 0;
+                });
+                this.saveData();
+                this.render();
+                this.closeClearConfirmDialog();
                 this.animateScoreChange();
             }
         }
