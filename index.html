@@ -14,7 +14,7 @@
             --primary-dark: #EE5A5A;
             --success: #4ECDC4;
             --danger: #FF8585;
-            --warning: #FFE66D;
+            --warning: #F59E0B;
             --bg-primary: #F2F2F7;
             --bg-secondary: #FFFFFF;
             --text-primary: #2C3E50;
@@ -52,43 +52,6 @@
         header {
             text-align: center;
             margin-bottom: 24px;
-            position: relative;
-        }
-
-        .sound-toggle {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 40px;
-            height: 40px;
-            border: none;
-            background: var(--bg-secondary);
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.3s;
-            z-index: 10;
-        }
-
-        .sound-toggle:hover {
-            background: var(--bg-primary);
-            transform: scale(1.05);
-        }
-
-        .sound-toggle:active {
-            transform: scale(0.95);
-        }
-
-        .sound-toggle.sound-on {
-            color: var(--primary);
-        }
-
-        .sound-toggle.sound-off {
-            color: var(--text-secondary);
         }
 
         h1 {
@@ -878,7 +841,6 @@
 <body>
     <div class="container">
         <header class="animate-in" style="animation-delay: 0.1s;">
-            <button class="sound-toggle sound-on" id="soundToggle" title="音效开关">🔊</button>
             <h1>斗地主计分牌</h1>
             <p class="subtitle">简单好用的三人线下斗地主计分工具</p>
         </header>
@@ -1086,7 +1048,6 @@
                 this.loadData();
                 this.bindEvents();
                 this.render();
-                this.updateSoundToggle();
             }
 
             loadData() {
@@ -1106,11 +1067,6 @@
                             }
                         }
                     });
-                }
-
-                const soundEnabled = localStorage.getItem('doudizhu_sound_enabled');
-                if (soundEnabled !== null) {
-                    this.soundEnabled = soundEnabled === 'true';
                 }
             }
 
@@ -1242,10 +1198,6 @@
                     if (e.target === document.getElementById('avatarSelectModal')) {
                         this.closeAvatarModal();
                     }
-                });
-
-                document.getElementById('soundToggle').addEventListener('click', () => {
-                    this.toggleSound();
                 });
             }
 
@@ -1445,7 +1397,23 @@
                     result: 'landlord'
                 };
                 this.render();
+                this.resetModalButtons();
+                this.updateResultPreview();
                 this.playOpenSound();
+            }
+
+            resetModalButtons() {
+                document.getElementById('bidSelect').querySelectorAll('.btn-option').forEach(btn => {
+                    btn.classList.toggle('selected', parseInt(btn.dataset.bid) === 3);
+                });
+
+                document.getElementById('bombSelect').querySelectorAll('.btn-option').forEach(btn => {
+                    btn.classList.toggle('selected', parseInt(btn.dataset.bombs) === 0);
+                });
+
+                document.getElementById('resultSelect').querySelectorAll('.btn-option').forEach(btn => {
+                    btn.classList.toggle('selected', btn.dataset.result === 'landlord');
+                });
             }
 
             closeModal() {
@@ -1722,35 +1690,6 @@
                 }
             }
 
-            toggleSound() {
-                this.soundEnabled = !this.soundEnabled;
-                const toggleBtn = document.getElementById('soundToggle');
-                if (this.soundEnabled) {
-                    toggleBtn.textContent = '🔊';
-                    toggleBtn.classList.remove('sound-off');
-                    toggleBtn.classList.add('sound-on');
-                } else {
-                    toggleBtn.textContent = '🔇';
-                    toggleBtn.classList.remove('sound-on');
-                    toggleBtn.classList.add('sound-off');
-                }
-                this.playClickSound();
-                localStorage.setItem('doudizhu_sound_enabled', this.soundEnabled);
-            }
-
-            updateSoundToggle() {
-                const toggleBtn = document.getElementById('soundToggle');
-                if (this.soundEnabled) {
-                    toggleBtn.textContent = '🔊';
-                    toggleBtn.classList.remove('sound-off');
-                    toggleBtn.classList.add('sound-on');
-                } else {
-                    toggleBtn.textContent = '🔇';
-                    toggleBtn.classList.remove('sound-on');
-                    toggleBtn.classList.add('sound-off');
-                }
-            }
-
             openAvatarModal(playerIndex) {
                 this.selectedPlayerForAvatar = playerIndex;
                 const modal = document.getElementById('avatarSelectModal');
@@ -1803,6 +1742,7 @@
                     }
                 });
             }
+
         }
 
         document.addEventListener('DOMContentLoaded', () => {
