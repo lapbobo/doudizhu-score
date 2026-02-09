@@ -112,4 +112,7 @@ MIT License - 可自由使用和修改
 
 ---
 
+- 邮箱：lapbobo@qq.com
+- 微信：yeefei618
+
 享受游戏！🎉
